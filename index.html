@@ -19,42 +19,69 @@
   <option value="oval">Oval</option>
 </select>
 <button onclick="createShape()">Create Object</button>
+<br>
+X Scale: <input type="text" id="xScale" value="1">
+Y Scale: <input type="text" id="yScale" value="1">
+<br>
+X Coordinate: <input type="text" id="xCoord">
+Y Coordinate: <input type="text" id="yCoord">
+<br>
 
 <script>
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
   var shapes = [];
+  var selectedShape = null;
+
+  canvas.addEventListener('mousedown', function(e) {
+    var x = e.offsetX, y = e.offsetY;
+    shapes.forEach(function(shape) {
+      if (ctx.isPointInPath(shape.path, x, y)) {
+        selectedShape = shape;
+      }
+    });
+  });
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (selectedShape) {
+      var x = e.offsetX, y = e.offsetY;
+      selectedShape.x = x;
+      selectedShape.y = y;
+      drawShapes();
+    }
+  });
+
+  canvas.addEventListener('mouseup', function(e) {
+    selectedShape = null;
+  });
 
   function createShape() {
     var shapeType = document.getElementById('shape').value;
-    var x = Math.random() * canvas.width;
-    var y = Math.random() * canvas.height;
-    shapes.push({type: shapeType, x: x, y: y});
+    var x = parseFloat(document.getElementById('xCoord').value);
+    var y = parseFloat(document.getElementById('yCoord').value);
+    var xScale = parseFloat(document.getElementById('xScale').value);
+    var yScale = parseFloat(document.getElementById('yScale').value);
+    var path = new Path2D();
+    if (shapeType === 'rectangle') {
+      path.rect(x, y, 100 * xScale, 50 * yScale);
+    } else if (shapeType === 'triangle') {
+      path.moveTo(x, y);
+      path.lineTo(x + 50 * xScale, y + 100 * yScale);
+      path.lineTo(x - 50 * xScale, y + 100 * yScale);
+      path.closePath();
+    } else if (shapeType === 'oval') {
+      path.ellipse(x, y, 50 * xScale, 25 * yScale, 0, 0, 2 * Math.PI);
+    }
+    shapes.push({type: shapeType, x: x, y: y, path: path});
     drawShapes();
   }
 
   function drawShapes() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     shapes.forEach(function(shape) {
-      if (shape.type === 'rectangle') {
-        ctx.fillRect(shape.x, shape.y, 100, 50);
-      } else if (shape.type === 'triangle') {
-        ctx.beginPath();
-        ctx.moveTo(shape.x, shape.y);
-        ctx.lineTo(shape.x + 50, shape.y + 100);
-        ctx.lineTo(shape.x - 50, shape.y + 100);
-        ctx.closePath();
-        ctx.fill();
-      } else if (shape.type === 'oval') {
-        ctx.beginPath();
-        ctx.ellipse(shape.x, shape.y, 50, 25, 0, 0, 2 * Math.PI);
-        ctx.fill();
-      }
+      ctx.fill(shape.path);
     });
   }
-
-  // Add event listeners for drag and drop functionality here
-  // Add functionality to import and resize background image here
 </script>
 
 </body>
