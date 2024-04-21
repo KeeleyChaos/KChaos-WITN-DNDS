@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Physics Engine Canvas</title>
+<title>Interactive Canvas</title>
 <style>
   canvas {
     border: 1px solid black;
+    touch-action: none; /* Prevent the browser's default touch actions */
   }
 </style>
 </head>
@@ -33,27 +34,52 @@ Y Coordinate: <input type="text" id="yCoord">
   var shapes = [];
   var selectedShape = null;
 
-  canvas.addEventListener('mousedown', function(e) {
-    var x = e.offsetX, y = e.offsetY;
+  function setEventListeners() {
+    canvas.addEventListener('mousedown', startDrag);
+    canvas.addEventListener('mousemove', drag);
+    canvas.addEventListener('mouseup', endDrag);
+    canvas.addEventListener('mouseleave', endDrag);
+
+    // Touch events for mobile devices
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      startDrag(e.touches[0]);
+    }, false);
+
+    canvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      drag(e.touches[0]);
+    }, false);
+
+    canvas.addEventListener('touchend', endDrag, false);
+    canvas.addEventListener('touchcancel', endDrag, false);
+  }
+
+  function startDrag(e) {
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
     shapes.forEach(function(shape) {
       if (ctx.isPointInPath(shape.path, x, y)) {
         selectedShape = shape;
       }
     });
-  });
+  }
 
-  canvas.addEventListener('mousemove', function(e) {
+  function drag(e) {
     if (selectedShape) {
-      var x = e.offsetX, y = e.offsetY;
+      var rect = canvas.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
       selectedShape.x = x;
       selectedShape.y = y;
       drawShapes();
     }
-  });
+  }
 
-  canvas.addEventListener('mouseup', function(e) {
+  function endDrag(e) {
     selectedShape = null;
-  });
+  }
 
   function createShape() {
     var shapeType = document.getElementById('shape').value;
@@ -79,9 +105,14 @@ Y Coordinate: <input type="text" id="yCoord">
   function drawShapes() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     shapes.forEach(function(shape) {
+      ctx.fillStyle = 'white'; // Set the fill color to white
+      ctx.strokeStyle = 'black'; // Set the stroke color to black
       ctx.fill(shape.path);
+      ctx.stroke(shape.path); // Add the black outline
     });
   }
+
+  setEventListeners();
 </script>
 
 </body>
