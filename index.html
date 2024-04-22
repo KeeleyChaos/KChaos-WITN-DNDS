@@ -53,15 +53,15 @@ Y Coordinate: <input type="text" id="yCoord" value="0"><br>
   }
 
   function startDrag(e) {
-    var rect = canvas.getBoundingClientRect();
-    var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
-    var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-    shapes.forEach(function(shape) {
-      if (ctx.isPointInPath(shape.path, x, y)) {
-        selectedShape = shape;
-      }
-    });
-  }
+  var rect = canvas.getBoundingClientRect();
+  var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
+  var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
+  shapes.forEach(function(shape) {
+    if (ctx.isPointInPath(shape.path, x, y)) {
+      selectedShape = shape;
+    }
+  });
+}
 
   function drag(e) {
     if (selectedShape) {
