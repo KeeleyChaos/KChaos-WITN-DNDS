@@ -1,94 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drag and Drop Example</title>
-<style>
-  #drop-target-one {
-    width: 500px;
-    height: 500px;
-    border: 5px dashed #D9D9D9;
-    border-radius: 10px;
-    padding: 5em 2em;
-    text-align: center;
-    margin: 20px;
-  }
-  .over {
-    background: #F7F7F7;
-  }
-  #drag-elements {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1em;
-  }
-  #drag-elements li {
-    display: inline-block;
-    padding: 0.5em 1em;
-    margin: 0 1em 1em 0;
-    border: 1px solid #D9D9D9;
-    background: #F7F7F7;
-    border-radius: 3px;
-    cursor: move; /* Added cursor style for better UX */
-  }
-</style>
+  <title>Physics Drag and Drop</title>
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
+  <style>
+    canvas {
+      border: 1px solid #999;
+      display: block;
+      margin: auto;
+    }
+  </style>
 </head>
 <body>
 
-<ul id="drag-elements">
-  <li draggable="true">Element One</li>
-  <li draggable="true">Element Two</li>
-  <li draggable="true">Element Three</li>
-  <li draggable="true">Element Four</li>
-  <li draggable="true">Element Five</li>
-</ul>
-
-<div id="drop-target-one">
-  Drop Here!
-</div>
+<canvas id="world"></canvas>
 
 <script>
-  var dropZoneOne = document.getElementById('drop-target-one');
-  var dragElements = document.querySelectorAll('#drag-elements li');
-  var elementDragged = null;
+  // Matter.js module aliases
+  var Engine = Matter.Engine,
+      Render = Matter.Render,
+      World = Matter.World,
+      Bodies = Matter.Bodies,
+      Mouse = Matter.Mouse,
+      MouseConstraint = Matter.MouseConstraint;
 
-  for (var i = 0; i < dragElements.length; i++) {
-    dragElements[i].addEventListener('dragstart', function(e) {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text', this.innerText);
-      elementDragged = this;
-    });
+  // Create engine
+  var engine = Engine.create();
 
-    dragElements[i].addEventListener('dragend', function(e) {
-      elementDragged = null;
-    });
-  }
-
-  dropZoneOne.addEventListener('dragover', function(e) {
-    if (e.preventDefault) {
-      e.preventDefault();
-    }
-    e.dataTransfer.dropEffect = 'move';
-  });
-
-  dropZoneOne.addEventListener('dragenter', function(e) {
-    this.classList.add('over');
-  });
-
-  dropZoneOne.addEventListener('dragleave', function(e) {
-    this.classList.remove('over');
-  });
-
-  dropZoneOne.addEventListener('drop', function(e) {
-    if (e.preventDefault) e.preventDefault();
-    if (e.stopPropagation) e.stopPropagation();
-
-    this.classList.remove('over');
-    if (elementDragged) {
-      this.innerHTML = 'Dropped ' + e.dataTransfer.getData('text');
-      elementDragged.parentNode.removeChild(elementDragged);
+  // Create renderer
+  var render = Render.create({
+    canvas: document.getElementById('world'),
+    engine: engine,
+    options: {
+      width: 800,
+      height: 600,
+      wireframes: false
     }
   });
+
+  // Create bodies
+  var boxA = Bodies.rectangle(400, 200, 80, 80);
+  var boxB = Bodies.rectangle(450, 50, 80, 80);
+  var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+
+  // Add bodies to the world
+  World.add(engine.world, [boxA, boxB, ground]);
+
+  // Add mouse control
+  var mouse = Mouse.create(render.canvas),
+      mouseConstraint = MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+          stiffness: 0.2,
+          render: {
+            visible: false
+          }
+        }
+      });
+
+  World.add(engine.world, mouseConstraint);
+
+  // Keep the mouse in sync with rendering
+  render.mouse = mouse;
+
+  // Run the engine
+  Engine.run(engine);
+
+  // Run the renderer
+  Render.run(render);
 </script>
 
 </body>
