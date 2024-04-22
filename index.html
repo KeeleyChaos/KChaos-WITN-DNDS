@@ -1,153 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Canvas with Physics</title>
-<style>
-  .controls {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 100; /* Ensures controls are above the canvas */
-    color: white; /* Sets the font color to white */
-}
-  body {
-    margin: 0;
-    overflow: hidden;
-    background-color: #f0f0f0;
-  }
-  canvas {
-    border: none;
-    touch-action: none;
-    background-color: transparent;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>
-</head>
-<body>
-
-  <div class="controls">
-    <select id="shape">
-<option value="rectangle">Rectangle</option>
-  <option value="triangle">Triangle</option>
-  <option value="oval">Oval</option> </select>
-  <button onclick="createShape()">Create Object</button> 
-  <button onclick="toggleEraseMode()">Erase</button><br>
-      X Coordinate: <input type="text" id="xCoord" value="400"><br>
-  Y Coordinate: <input type="text" id="yCoord" value="300"><br>
-  X Scale: <input type="text" id="xScale" value="100"><br>
-  Y Scale: <input type="text" id="yScale" value="100"><br>
-  X Coordinate: <input type="text" id="xCoord" value="400"><br>
-  Y Coordinate: <input type="text" id="yCoord" value="300"><br>
-  </div>
   
-<canvas id="canvas"></canvas><br> <select id="shape">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      Interactive Canvas with Physics
+    </title>
+    <style>
+      .controls { position: absolute; top: 10px; left: 10px; z-index: 100; /*
+      Ensures controls are above the canvas */ color: white; /* Sets the font
+      color to white */ } body { margin: 0; overflow: hidden; background-color:
+      #f0f0f0; } canvas { border: none; touch-action: none; background-color:
+      transparent; position: absolute; top: 0; left: 0; width: 100%; height:
+      100%; }
+    </style>
+  </head>
+  
+  <body>
+    <div class="controls">
+      <select id="shape">
+        <option value="rectangle">
+          Rectangle
+        </option>
+        <option value="triangle">
+          Triangle
+        </option>
+        <option value="oval">
+          Oval
+        </option>
+      </select>
+      <button onclick="createShape()">
+        Create Object
+      </button>
+      <button onclick="toggleEraseMode()">
+        Erase
+      </button>
+      <br>
+      X Coordinate:
+      <input type="text" id="xCoord" value="400">
+      <br>
+      Y Coordinate:
+      <input type="text" id="yCoord" value="300">
+      <br>
+      X Scale:
+      <input type="text" id="xScale" value="100">
+      <br>
+      Y Scale:
+      <input type="text" id="yScale" value="100">
+      <br>
+      X Coordinate:
+      <input type="text" id="xCoord" value="400">
+      <br>
+      Y Coordinate:
+      <input type="text" id="yCoord" value="300">
+      <br>
+    </div>
+    <canvas id="canvas">
+    </canvas>
+    <br>
+    <select id="shape">
+      <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0">
+      </script>
+      <script>
+        // Matter.js module aliases
+        var Engine = Matter.Engine,
+        Render = Matter.Render,
+        World = Matter.World,
+        Bodies = Matter.Bodies,
+        Mouse = Matter.Mouse,
+        MouseConstraint = Matter.MouseConstraint;
 
-<script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
-<script>
-  // Matter.js module aliases
-  var Engine = Matter.Engine,
-      Render = Matter.Render,
-      World = Matter.World,
-      Bodies = Matter.Bodies,
-      Mouse = Matter.Mouse,
-      MouseConstraint = Matter.MouseConstraint;
+        // Create an engine
+        var engine = Engine.create();
 
-  // Create an engine
-  var engine = Engine.create();
+        // Create a renderer
+        var render = Render.create({
+          element: document.body,
+          engine: engine,
+          canvas: document.getElementById('canvas'),
+          options: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            wireframes: false
+          }
+        });
 
-  // Create a renderer
-  var render = Render.create({
-    element: document.body,
-    engine: engine,
-    canvas: document.getElementById('canvas'),
-    options: {
-      width: window.innerWidth,
-      height: window.innerHeight,
-      wireframes: false
-    }
-  });
-
-  // Add walls
-  var wallThickness = 20;
-  var wallOptions = { isStatic: true, render: { visible: false } };
-  World.add(engine.world, [
-    Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // top
-    Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // bottom
-    Bodies.rectangle(-wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions), // left
-    Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions) // right
-  ]);
-
-  // Function to create shapes
-  function createShape(shapeType, x, y, xScale, yScale) {
-    var body;
-    if (shapeType === 'rectangle') {
-      body = Bodies.rectangle(x, y, xScale, yScale, {
-        render: {
-          fillStyle: 'white',
-          strokeStyle: 'black',
-          lineWidth: 2
-        }
-      });
-    } else if (shapeType === 'triangle') {
-      // Create a triangle body by using a polygon with 3 vertices
-      body = Bodies.polygon(x, y, 3, xScale / 2, {
-        render: {
-          fillStyle: 'white',
-          strokeStyle: 'black',
-          lineWidth: 2
-        }
-      });
-    } else if (shapeType === 'oval') {
-      // Create an oval body by using a circle and scaling it
-      body = Bodies.circle(x, y, xScale / 2, {
-        render: {
-          fillStyle: 'white',
-          strokeStyle: 'black',
-          lineWidth: 2
-        }
-      });
-      Matter.Body.scale(body, 1, yScale / xScale);
-    }
-    World.add(engine.world, body);
-  }
-
-  // Add mouse control
-  var mouse = Mouse.create(render.canvas),
-      mouseConstraint = MouseConstraint.create(engine, {
-        mouse: mouse,
-        constraint: {
-          stiffness: 0.2,
+        // Add walls
+        var wallThickness = 20;
+        var wallOptions = {
+          isStatic: true,
           render: {
             visible: false
           }
+        };
+        World.add(engine.world, [Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // top
+        Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // bottom
+        Bodies.rectangle( - wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions), // left
+        Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions) // right
+        ]);
+
+        // Function to create shapes
+        function createShape(shapeType, x, y, xScale, yScale) {
+          var body;
+          if (shapeType === 'rectangle') {
+            body = Bodies.rectangle(x, y, xScale, yScale, {
+              render: {
+                fillStyle: 'white',
+                strokeStyle: 'black',
+                lineWidth: 2
+              }
+            });
+          } else if (shapeType === 'triangle') {
+            // Create a triangle body by using a polygon with 3 vertices
+            body = Bodies.polygon(x, y, 3, xScale / 2, {
+              render: {
+                fillStyle: 'white',
+                strokeStyle: 'black',
+                lineWidth: 2
+              }
+            });
+          } else if (shapeType === 'oval') {
+            // Create an oval body by using a circle and scaling it
+            body = Bodies.circle(x, y, xScale / 2, {
+              render: {
+                fillStyle: 'white',
+                strokeStyle: 'black',
+                lineWidth: 2
+              }
+            });
+            Matter.Body.scale(body, 1, yScale / xScale);
+          }
+          World.add(engine.world, body);
         }
-      });
 
-  World.add(engine.world, mouseConstraint);
+        // Add mouse control
+        var mouse = Mouse.create(render.canvas),
+        mouseConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: {
+            stiffness: 0.2,
+            render: {
+              visible: false
+            }
+          }
+        });
 
-  // Toggle erase mode
-  var eraseMode = false;
-  function toggleEraseMode() {
-    eraseMode = !eraseMode;
-    if (eraseMode) {
-      document.body.style.cursor = 'crosshair';
-    } else {
-      document.body.style.cursor = 'default';
-    }
-  }
+        World.add(engine.world, mouseConstraint);
 
-  // Run the engine
-  Engine.run(engine);
+        // Toggle erase mode
+        var eraseMode = false;
+        function toggleEraseMode() {
+          eraseMode = !eraseMode;
+          if (eraseMode) {
+            document.body.style.cursor = 'crosshair';
+          } else {
+            document.body.style.cursor = 'default';
+          }
+        }
 
-  // Run the renderer
-  Render.run(render);
-</script>
+        // Run the engine
+        Engine.run(engine);
 
-</body>
+        // Run the renderer
+        Render.run(render);
+      </script>
+  </body>
+
 </html>
