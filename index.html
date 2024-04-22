@@ -79,12 +79,11 @@
 
         // Add walls
         var wallThickness = 20;
-        var wallOptions = {
-          isStatic: true,
-          render: {
-            visible: false
-          }
-        };
+        var wallOptions = { 
+  isStatic: true, 
+  render: { visible: false },
+  label: 'wall' // Unique label for walls
+};
         World.add(engine.world, [Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // top
         Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // bottom
         Bodies.rectangle( - wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions), // left
@@ -157,6 +156,7 @@ function toggleEraseMode() {
 }
 
 // Update the mouse move event to check for collisions with bodies
+        
 document.addEventListener('mousemove', function(event) {
   if (eraseMode) {
     // Get mouse position
@@ -164,7 +164,7 @@ document.addEventListener('mousemove', function(event) {
     // Query for bodies at the mouse position
     var bodiesUnderMouse = Matter.Query.point(engine.world.bodies, mousePosition);
     bodiesUnderMouse.forEach(function(body) {
-      if (body !== mouseConstraint.body) {
+      if (body.label !== 'wall') {
         // Remove the body if it's not the ground or walls
         Matter.Composite.remove(engine.world, body);
       }
