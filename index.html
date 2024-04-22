@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Canvas</title>
+<title>Interactive Canvas with Physics</title>
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
 <style>
   canvas {
     border: 1px solid black;
@@ -13,72 +14,43 @@
 </head>
 <body>
 
-<canvas id="canvas" width="500" height="500"></canvas><br>
+<canvas id="canvas" width="800" height="600"></canvas><br>
 <select id="shape">
   <option value="rectangle">Rectangle</option>
   <option value="triangle">Triangle</option>
   <option value="oval">Oval</option>
 </select><br>
 <button onclick="createShape()">Create Object</button><br>
-X Scale: <input type="text" id="xScale" value="1"><br>
-Y Scale: <input type="text" id="yScale" value="1"><br>
-X Coordinate: <input type="text" id="xCoord" value="0"><br>
-Y Coordinate: <input type="text" id="yCoord" value="0"><br>
+X Scale: <input type="text" id="xScale" value="100"><br>
+Y Scale: <input type="text" id="yScale" value="100"><br>
+X Coordinate: <input type="text" id="xCoord" value="400"><br>
+Y Coordinate: <input type="text" id="yCoord" value="300"><br>
 
 <script>
-  var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d');
-  var shapes = [];
-  var selectedShape = null;
-  var dragStart = null;
+  // Matter.js module aliases
+  var Engine = Matter.Engine,
+      Render = Matter.Render,
+      World = Matter.World,
+      Bodies = Matter.Bodies,
+      Mouse = Matter.Mouse,
+      MouseConstraint = Matter.MouseConstraint;
 
-  function setEventListeners() {
-    canvas.addEventListener('mousedown', startDrag);
-    canvas.addEventListener('mousemove', drag);
-    canvas.addEventListener('mouseup', endDrag);
-    canvas.addEventListener('mouseleave', endDrag);
+  // Create engine
+  var engine = Engine.create();
 
-    // Touch events for mobile devices
-    canvas.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      startDrag(e.touches[0]);
-    }, false);
-
-    canvas.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-      drag(e.touches[0]);
-    }, false);
-
-    canvas.addEventListener('touchend', endDrag, false);
-    canvas.addEventListener('touchcancel', endDrag, false);
-  }
-
-  function startDrag(e) {
-    dragStart = { x: e.clientX, y: e.clientY };
-    shapes.forEach(function(shape) {
-      if (ctx.isPointInPath(shape.path, dragStart.x, dragStart.y)) {
-        selectedShape = shape;
-      }
-    });
-  }
-
-  function drag(e) {
-    if (selectedShape && dragStart) {
-      var currentX = e.clientX;
-      var currentY = e.clientY;
-      var dx = currentX - dragStart.x;
-      var dy = currentY - dragStart.y;
-      selectedShape.x += dx;
-      selectedShape.y += dy;
-      dragStart = { x: currentX, y: currentY };
-      drawShapes();
+  // Create renderer
+  var render = Render.create({
+    canvas: document.getElementById('canvas'),
+    engine: engine,
+    options: {
+      width: 800,
+      height: 600,
+      wireframes: false
     }
-  }
+  });
 
-  function endDrag(e) {
-    selectedShape = null;
-    dragStart = null;
-  }
+  // Create bodies and add them to the world
+  var shapes = [];
 
   function createShape() {
     var shapeType = document.getElementById('shape').value;
@@ -86,32 +58,43 @@ Y Coordinate: <input type="text" id="yCoord" value="0"><br>
     var y = parseInt(document.getElementById('yCoord').value, 10);
     var xScale = parseInt(document.getElementById('xScale').value, 10);
     var yScale = parseInt(document.getElementById('yScale').value, 10);
-    var path = new Path2D();
+    var body;
     if (shapeType === 'rectangle') {
-      path.rect(x, y, xScale, yScale);
+      body = Bodies.rectangle(x, y, xScale, yScale);
     } else if (shapeType === 'triangle') {
-      path.moveTo(x, y);
-      path.lineTo(x + xScale / 2, y + yScale);
-      path.lineTo(x - xScale / 2, y + yScale);
-      path.closePath();
+      // Create a triangle body by using a trapezoid with very small top width
+      body = Bodies.trapezoid(x, y, xScale, yScale, 0.0001);
     } else if (shapeType === 'oval') {
-      path.ellipse(x, y, xScale / 2, yScale / 2, 0, 0, 2 * Math.PI);
+      // Create an oval body by using a circle and scaling it
+      body = Bodies.circle(x, y, xScale / 2);
+      Matter.Body.scale(body, 1, yScale / xScale);
     }
-    shapes.push({type: shapeType, x: x, y: y, path: path});
-    drawShapes();
+    World.add(engine.world, body);
+    shapes.push(body);
   }
 
-  function drawShapes() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    shapes.forEach(function(shape) {
-      ctx.fillStyle = 'white';
-      ctx.strokeStyle = 'black';
-      ctx.fill(shape.path);
-      ctx.stroke(shape.path);
-    });
-  }
+  // Add mouse control
+  var mouse = Mouse.create(render.canvas),
+      mouseConstraint = MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+          stiffness: 0.2,
+          render: {
+            visible: false
+          }
+        }
+      });
 
-  setEventListeners();
+  World.add(engine.world, mouseConstraint);
+
+  // Keep the mouse in sync with rendering
+  render.mouse = mouse;
+
+  // Run the engine
+  Engine.run(engine);
+
+  // Run the renderer
+  Render.run(render);
 </script>
 
 </body>
