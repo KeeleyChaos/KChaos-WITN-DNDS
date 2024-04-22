@@ -4,41 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interactive Canvas with Physics</title>
-<script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
 <style>
   body {
     margin: 0;
-    overflow: hidden; /* Hide scrollbars */
-    background-color: #f0f0f0; /* Set the website background color */
+    overflow: hidden;
+    background-color: #f0f0f0;
   }
   canvas {
-    border: none; /* Remove the border */
-    touch-action: none; /* Prevent the browser's default touch actions */
-    background-color: transparent; /* Make the canvas background transparent */
-    position: absolute; /* Position the canvas absolutely */
-    top: 50%; /* Center the canvas vertically */
-    left: 50%; /* Center the canvas horizontally */
-    transform: translate(-50%, -50%); /* Adjust the position to truly center the canvas */
-    width: 80vw; /* Set the width to 80% of the viewport width */
-    height: 60vh; /* Set the height to 60% of the viewport height */
+    border: none;
+    touch-action: none;
+    background-color: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 </style>
 </head>
 <body>
 
-<canvas id="canvas"></canvas><br>
-<select id="shape">
-  <option value="rectangle">Rectangle</option>
-  <option value="triangle">Triangle</option>
-  <option value="oval">Oval</option>
-</select>
-<button onclick="createShape()">Create Object</button>
-<button onclick="toggleEraseMode()">Erase</button><br>
-X Scale: <input type="text" id="xScale" value="100"><br>
-Y Scale: <input type="text" id="yScale" value="100"><br>
-X Coordinate: <input type="text" id="xCoord" value="400"><br>
-Y Coordinate: <input type="text" id="yCoord" value="300"><br>
+<canvas id="canvas"></canvas>
 
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
 <script>
   // Matter.js module aliases
   var Engine = Matter.Engine,
@@ -48,30 +36,33 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
       Mouse = Matter.Mouse,
       MouseConstraint = Matter.MouseConstraint;
 
-  // Create engine
+  // Create an engine
   var engine = Engine.create();
 
-  // Create renderer
+  // Create a renderer
   var render = Render.create({
-    canvas: document.getElementById('canvas'),
+    element: document.body,
     engine: engine,
+    canvas: document.getElementById('canvas'),
     options: {
-      width: Math.floor(window.innerWidth * 0.8), // 80% of the viewport width
-      height: Math.floor(window.innerHeight * 0.6), // 60% of the viewport height
+      width: window.innerWidth,
+      height: window.innerHeight,
       wireframes: false
     }
   });
 
-  // Create bodies and add them to the world
-  var shapes = [];
-  var eraseMode = false;
+  // Add walls
+  var wallThickness = 20;
+  var wallOptions = { isStatic: true, render: { visible: false } };
+  World.add(engine.world, [
+    Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // top
+    Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth, wallThickness, wallOptions), // bottom
+    Bodies.rectangle(-wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions), // left
+    Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions) // right
+  ]);
 
-  function createShape() {
-    var shapeType = document.getElementById('shape').value;
-    var x = parseInt(document.getElementById('xCoord').value, 10);
-    var y = parseInt(document.getElementById('yCoord').value, 10);
-    var xScale = parseInt(document.getElementById('xScale').value, 10);
-    var yScale = parseInt(document.getElementById('yScale').value, 10);
+  // Function to create shapes
+  function createShape(shapeType, x, y, xScale, yScale) {
     var body;
     if (shapeType === 'rectangle') {
       body = Bodies.rectangle(x, y, xScale, yScale, {
@@ -82,6 +73,7 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
         }
       });
     } else if (shapeType === 'triangle') {
+      // Create a triangle body by using a polygon with 3 vertices
       body = Bodies.polygon(x, y, 3, xScale / 2, {
         render: {
           fillStyle: 'white',
@@ -90,6 +82,7 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
         }
       });
     } else if (shapeType === 'oval') {
+      // Create an oval body by using a circle and scaling it
       body = Bodies.circle(x, y, xScale / 2, {
         render: {
           fillStyle: 'white',
@@ -100,7 +93,6 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
       Matter.Body.scale(body, 1, yScale / xScale);
     }
     World.add(engine.world, body);
-    shapes.push(body);
   }
 
   // Add mouse control
@@ -117,24 +109,8 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
 
   World.add(engine.world, mouseConstraint);
 
-  // Create walls as static bodies
-  var offset = 10; // Offset for the walls outside the canvas
-  var wallOptions = {
-    isStatic: true,
-    render: {
-      fillStyle: 'transparent', // Make the walls transparent
-      strokeStyle: 'transparent', // Make the wall borders transparent
-      lineWidth: 1
-    }
-  };
-  World.add(engine.world, [
-    Bodies.rectangle(400, -offset, 820, 20, wallOptions), // Top wall
-    Bodies.rectangle(400, 600 + offset, 820, 20, wallOptions), // Bottom wall
-    Bodies.rectangle(-offset, 300, 20, 620, wallOptions), // Left wall
-    Bodies.rectangle(800 + offset, 300, 20, 620, wallOptions) // Right wall
-  ]);
-
   // Toggle erase mode
+  var eraseMode = false;
   function toggleEraseMode() {
     eraseMode = !eraseMode;
     if (eraseMode) {
@@ -143,17 +119,6 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
       document.body.style.cursor = 'default';
     }
   }
-
-  // Handle mouse click for erase mode
-  render.canvas.addEventListener('mousedown', function (event) {
-    if (eraseMode) {
-      var mousePosition = mouse.position;
-      var clickedBody = Matter.Query.point(shapes, mousePosition)[0];
-      if (clickedBody) {
-        World.remove(engine.world, clickedBody);
-      }
-    }
-  });
 
   // Run the engine
   Engine.run(engine);
