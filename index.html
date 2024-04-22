@@ -1,3 +1,50 @@
+<style>
+  body {
+    margin: 0;
+    overflow: hidden; /* Hide scrollbars */
+    background-color: #f0f0f0; /* Set the website background color */
+  }
+  canvas {
+    border: none; /* Remove the border */
+    touch-action: none; /* Prevent the browser's default touch actions */
+    background-color: transparent; /* Make the canvas background transparent */
+    position: absolute; /* Position the canvas absolutely */
+    top: 50%; /* Center the canvas vertically */
+    left: 50%; /* Center the canvas horizontally */
+    transform: translate(-50%, -50%); /* Adjust the position to truly center the canvas */
+    width: 80vw; /* Set the width to 80% of the viewport width */
+    height: 60vh; /* Set the height to 60% of the viewport height */
+  }
+</style>
+AI-generated code. Review and use carefully. More info on FAQ.
+And in your JavaScript, you’ll need to adjust the Matter.js renderer to match the canvas size:
+
+JavaScript
+
+// Create renderer
+var render = Render.create({
+  canvas: document.getElementById('canvas'),
+  engine: engine,
+  options: {
+    width: Math.floor(window.innerWidth * 0.8), // 80% of the viewport width
+    height: Math.floor(window.innerHeight * 0.6), // 60% of the viewport height
+    wireframes: false
+  }
+});
+AI-generated code. Review and use carefully. More info on FAQ.
+This will make the canvas responsive, taking up 80% of the width and 60% of the height of the viewport, which is the visible area of the screen. You can adjust the percentages to fit your design needs. Remember to also adjust the wall positions and dimensions in your JavaScript to match the new canvas size.
+
+Feel free to implement these changes, and if you have any further questions or need more help, just let me know! 😊
+
+
+
+You
+put it all together now as one html file
+Copilot
+Certainly! Below is the complete HTML file that integrates the interactive canvas with physics, responsive sizing, and erase functionality. You can copy and paste this code into an HTML file and open it in a web browser to see the interactive canvas in action:
+
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +53,21 @@
 <title>Interactive Canvas with Physics</title>
 <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
 <style>
+  body {
+    margin: 0;
+    overflow: hidden; /* Hide scrollbars */
+    background-color: #f0f0f0; /* Set the website background color */
+  }
   canvas {
-    border: 1px solid black;
+    border: none; /* Remove the border */
     touch-action: none; /* Prevent the browser's default touch actions */
+    background-color: transparent; /* Make the canvas background transparent */
+    position: absolute; /* Position the canvas absolutely */
+    top: 50%; /* Center the canvas vertically */
+    left: 50%; /* Center the canvas horizontally */
+    transform: translate(-50%, -50%); /* Adjust the position to truly center the canvas */
+    width: 80vw; /* Set the width to 80% of the viewport width */
+    height: 60vh; /* Set the height to 60% of the viewport height */
   }
 </style>
 </head>
@@ -44,8 +103,8 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
     canvas: document.getElementById('canvas'),
     engine: engine,
     options: {
-      width: 800,
-      height: 600,
+      width: Math.floor(window.innerWidth * 0.8), // 80% of the viewport width
+      height: Math.floor(window.innerHeight * 0.6), // 60% of the viewport height
       wireframes: false
     }
   });
