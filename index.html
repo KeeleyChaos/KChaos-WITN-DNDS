@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interactive Canvas with Physics</title>
 <style>
+  .controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100; /* Ensures controls are above the canvas */
+}
   body {
     margin: 0;
     overflow: hidden;
@@ -24,7 +30,7 @@
 </head>
 <body>
 
-<canvas id="canvas"></canvas><br> <select id="shape">
+  <div class="controls">
 <option value="rectangle">Rectangle</option>
   <option value="triangle">Triangle</option>
   <option value="oval">Oval</option> </select>
@@ -34,6 +40,9 @@
   Y Scale: <input type="text" id="yScale" value="100"><br>
   X Coordinate: <input type="text" id="xCoord" value="400"><br>
   Y Coordinate: <input type="text" id="yCoord" value="300"><br>
+  </div>
+  
+<canvas id="canvas"></canvas><br> <select id="shape">
 
 <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
 <script>
