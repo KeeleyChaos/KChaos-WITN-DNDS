@@ -20,7 +20,8 @@
   <option value="triangle">Triangle</option>
   <option value="oval">Oval</option>
 </select><br>
-<button onclick="createShape()">Create Object</button><br>
+<button onclick="createShape()">Create Object</button>
+<button onclick="toggleEraseMode()">Erase</button><br>
 X Scale: <input type="text" id="xScale" value="100"><br>
 Y Scale: <input type="text" id="yScale" value="100"><br>
 X Coordinate: <input type="text" id="xCoord" value="400"><br>
@@ -51,44 +52,10 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
 
   // Create bodies and add them to the world
   var shapes = [];
+  var eraseMode = false;
 
   function createShape() {
-    var shapeType = document.getElementById('shape').value;
-    var x = parseInt(document.getElementById('xCoord').value, 10);
-    var y = parseInt(document.getElementById('yCoord').value, 10);
-    var xScale = parseInt(document.getElementById('xScale').value, 10);
-    var yScale = parseInt(document.getElementById('yScale').value, 10);
-    var body;
-    if (shapeType === 'rectangle') {
-      body = Bodies.rectangle(x, y, xScale, yScale, {
-        render: {
-          fillStyle: 'white',
-          strokeStyle: 'black',
-          lineWidth: 2
-        }
-      });
-    } else if (shapeType === 'triangle') {
-      // Create a triangle body by using a polygon with 3 vertices
-      body = Bodies.polygon(x, y, 3, xScale / 2, {
-        render: {
-          fillStyle: 'white',
-          strokeStyle: 'black',
-          lineWidth: 2
-        }
-      });
-    } else if (shapeType === 'oval') {
-      // Create an oval body by using a circle and scaling it
-      body = Bodies.circle(x, y, xScale / 2, {
-        render: {
-          fillStyle: 'white',
-          strokeStyle: 'black',
-          lineWidth: 2
-        }
-      });
-      Matter.Body.scale(body, 1, yScale / xScale);
-    }
-    World.add(engine.world, body);
-    shapes.push(body);
+    // ... (same as previous code)
   }
 
   // Add mouse control
@@ -104,6 +71,43 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
       });
 
   World.add(engine.world, mouseConstraint);
+
+  // Create walls as static bodies
+  var wallOptions = {
+    isStatic: true,
+    render: {
+      fillStyle: 'gray',
+      strokeStyle: 'black',
+      lineWidth: 2
+    }
+  };
+  World.add(engine.world, [
+    Bodies.rectangle(400, 0, 800, 20, wallOptions), // Top wall
+    Bodies.rectangle(400, 600, 800, 20, wallOptions), // Bottom wall
+    Bodies.rectangle(0, 300, 20, 600, wallOptions), // Left wall
+    Bodies.rectangle(800, 300, 20, 600, wallOptions) // Right wall
+  ]);
+
+  // Toggle erase mode
+  function toggleEraseMode() {
+    eraseMode = !eraseMode;
+    if (eraseMode) {
+      document.body.style.cursor = 'crosshair';
+    } else {
+      document.body.style.cursor = 'default';
+    }
+  }
+
+  // Handle mouse click for erase mode
+  render.canvas.addEventListener('mousedown', function (event) {
+    if (eraseMode) {
+      var mousePosition = mouse.position;
+      var clickedBody = Matter.Query.point(shapes, mousePosition)[0];
+      if (clickedBody) {
+        World.remove(engine.world, clickedBody);
+      }
+    }
+  });
 
   // Keep the mouse in sync with rendering
   render.mouse = mouse;
