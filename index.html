@@ -31,6 +31,9 @@
       <button onclick="toggleEraseMode()">
   Erase
 </button>
+    
+    <input type="file" id="backgroundInput" style="display: none;" onchange="changeBackground(this)" accept="image/*">
+    <button onclick="document.getElementById('backgroundInput').click()">Select Background</button>
       <br>
       X Coordinate:
       <input type="text" id="xCoord" value="400">
@@ -44,10 +47,6 @@
       Y Scale:
       <input type="text" id="yScale" value="100">
       <br>
-  </div>
-  <div class="background-selector">
-    <input type="file" id="backgroundInput" style="display: none;" onchange="changeBackground(this)" accept="image/*">
-    <button onclick="document.getElementById('backgroundInput').click()">Select Background</button>
   </div>
   <canvas id="canvas"></canvas>
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
