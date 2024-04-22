@@ -3,115 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Canvas</title>
+<title>Drag and Drop Example</title>
 <style>
-  canvas {
-    border: 1px solid black;
-    touch-action: none; /* Prevent the browser's default touch actions */
+  #drop-target-one {
+    width: 500px;
+    height: 500px;
+    border: 5px dashed #D9D9D9;
+    border-radius: 10px;
+    padding: 5em 2em;
+    text-align: center;
+    margin: 20px;
+  }
+  .over {
+    background: #F7F7F7;
+  }
+  #drag-elements {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1em;
+  }
+  #drag-elements li {
+    display: inline-block;
+    padding: 0.5em 1em;
+    margin: 0 1em 1em 0;
+    border: 1px solid #D9D9D9;
+    background: #F7F7F7;
+    border-radius: 3px;
+    cursor: move; /* Added cursor style for better UX */
   }
 </style>
 </head>
 <body>
 
-<canvas id="canvas" width="500" height="500"></canvas><br>
-<select id="shape">
-  <option value="rectangle">Rectangle</option>
-  <option value="triangle">Triangle</option>
-  <option value="oval">Oval</option>
-</select><br>
-<button onclick="createShape()">Create Object</button><br>
-X Scale: <input type="text" id="xScale" value="1"><br>
-Y Scale: <input type="text" id="yScale" value="1"><br>
-X Coordinate: <input type="text" id="xCoord" value="0"><br>
-Y Coordinate: <input type="text" id="yCoord" value="0"><br>
+<ul id="drag-elements">
+  <li draggable="true">Element One</li>
+  <li draggable="true">Element Two</li>
+  <li draggable="true">Element Three</li>
+  <li draggable="true">Element Four</li>
+  <li draggable="true">Element Five</li>
+</ul>
+
+<div id="drop-target-one">
+  Drop Here!
+</div>
 
 <script>
-  var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d');
-  var shapes = [];
-  var selectedShape = null;
+  var dropZoneOne = document.getElementById('drop-target-one');
+  var dragElements = document.querySelectorAll('#drag-elements li');
+  var elementDragged = null;
 
-  function setEventListeners() {
-    canvas.addEventListener('mousedown', startDrag);
-    canvas.addEventListener('mousemove', drag);
-    canvas.addEventListener('mouseup', endDrag);
-    canvas.addEventListener('mouseleave', endDrag);
+  for (var i = 0; i < dragElements.length; i++) {
+    dragElements[i].addEventListener('dragstart', function(e) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text', this.innerText);
+      elementDragged = this;
+    });
 
-    // Touch events for mobile devices
-    canvas.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      startDrag(e.touches[0]);
-    }, false);
-
-    canvas.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-      drag(e.touches[0]);
-    }, false);
-
-    canvas.addEventListener('touchend', endDrag, false);
-    canvas.addEventListener('touchcancel', endDrag, false);
-  }
-
-  function startDrag(e) {
-  var rect = canvas.getBoundingClientRect();
-  var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
-  var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-  shapes.forEach(function(shape) {
-    if (ctx.isPointInPath(shape.path, x, y)) {
-      selectedShape = shape;
-    }
-  });
-}
-
-  function drag(e) {
-    if (selectedShape) {
-      var rect = canvas.getBoundingClientRect();
-      var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
-      var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-      selectedShape.x += x - dragStart.x;
-      selectedShape.y += y - dragStart.y;
-      dragStart = { x: x, y: y };
-      drawShapes();
-    }
-  }
-
-  function endDrag(e) {
-    selectedShape = null;
-    dragStart = null;
-  }
-
-  function createShape() {
-    var shapeType = document.getElementById('shape').value;
-    var x = parseInt(document.getElementById('xCoord').value, 10); // Parse as integer for pixels
-    var y = parseInt(document.getElementById('yCoord').value, 10); // Parse as integer for pixels
-    var xScale = parseInt(document.getElementById('xScale').value, 10); // Parse as integer for pixels
-    var yScale = parseInt(document.getElementById('yScale').value, 10); // Parse as integer for pixels
-    var path = new Path2D();
-    if (shapeType === 'rectangle') {
-      path.rect(x, y, xScale, yScale); // Use scale as size in pixels
-    } else if (shapeType === 'triangle') {
-      path.moveTo(x, y);
-      path.lineTo(x + xScale / 2, y + yScale);
-      path.lineTo(x - xScale / 2, y + yScale);
-      path.closePath();
-    } else if (shapeType === 'oval') {
-      path.ellipse(x, y, xScale / 2, yScale / 2, 0, 0, 2 * Math.PI);
-    }
-    shapes.push({type: shapeType, x: x, y: y, path: path});
-    drawShapes();
-  }
-
-  function drawShapes() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    shapes.forEach(function(shape) {
-      ctx.fillStyle = 'white'; // Set the fill color to white
-      ctx.strokeStyle = 'black'; // Set the stroke color to black
-      ctx.fill(shape.path);
-      ctx.stroke(shape.path); // Add the black outline
+    dragElements[i].addEventListener('dragend', function(e) {
+      elementDragged = null;
     });
   }
 
-  setEventListeners();
+  dropZoneOne.addEventListener('dragover', function(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+  });
+
+  dropZoneOne.addEventListener('dragenter', function(e) {
+    this.classList.add('over');
+  });
+
+  dropZoneOne.addEventListener('dragleave', function(e) {
+    this.classList.remove('over');
+  });
+
+  dropZoneOne.addEventListener('drop', function(e) {
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+
+    this.classList.remove('over');
+    if (elementDragged) {
+      this.innerHTML = 'Dropped ' + e.dataTransfer.getData('text');
+      elementDragged.parentNode.removeChild(elementDragged);
+    }
+  });
 </script>
 
 </body>
