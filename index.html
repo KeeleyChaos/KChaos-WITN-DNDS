@@ -138,32 +138,58 @@
 
         World.add(engine.world, mouseConstraint);
         
-// Function to handle start of touch or mouse interaction
-function startInteraction(event) {
-  if (eraseMode) {
-    var position = event.type.includes('touch') ? event.touches[0] : event;
-    mouseButtonIsDown = true;
-    var mousePosition = { x: position.clientX, y: position.clientY };
-    var bodiesUnderMouse = Matter.Query.point(engine.world.bodies, mousePosition);
-    bodiesUnderMouse.forEach(function(body) {
-      if (body.label !== 'wall') {
-        Matter.Composite.remove(engine.world, body);
-      }
-    });
-  }
+// Initialize erase mode and mouse button state
+var eraseMode = false;
+var mouseButtonIsDown = false;
+
+// Function to toggle erase mode
+function toggleEraseMode() {
+  eraseMode = !eraseMode;
+  document.body.style.cursor = eraseMode ? 'crosshair' : 'default';
 }
 
-// Function to handle end of touch or mouse interaction
-function endInteraction(event) {
-  if (eraseMode && event.type.includes('touch')) {
+// Event listener for mouse button down
+document.addEventListener('mousedown', function(event) {
+  // Check if the left mouse button is pressed
+  if (event.button === 0) {
+    mouseButtonIsDown = true;
+  }
+});
+
+// Event listener for mouse button up
+document.addEventListener('mouseup', function(event) {
+  // Check if the left mouse button is released
+  if (event.button === 0) {
     mouseButtonIsDown = false;
   }
-}
+});
 
-// Function to handle move of touch or mouse interaction
-function moveInteraction(event) {
+// Event listener for mouse move
+document.addEventListener('mousemove', handleInteraction);
+
+// Event listener for touch start
+document.addEventListener('touchstart', function(event) {
+  // Prevent default touch behavior (e.g., scrolling)
+  event.preventDefault();
+  mouseButtonIsDown = true;
+  handleInteraction(event.touches[0]);
+}, { passive: false });
+
+// Event listener for touch end
+document.addEventListener('touchend', function(event) {
+  mouseButtonIsDown = false;
+}, { passive: false });
+
+// Event listener for touch move
+document.addEventListener('touchmove', function(event) {
+  // Prevent default touch behavior (e.g., scrolling)
+  event.preventDefault();
+  handleInteraction(event.touches[0]);
+}, { passive: false });
+
+// Function to handle interaction (mouse or touch)
+function handleInteraction(position) {
   if (eraseMode && mouseButtonIsDown) {
-    var position = event.type.includes('touch') ? event.touches[0] : event;
     var mousePosition = { x: position.clientX, y: position.clientY };
     var bodiesUnderMouse = Matter.Query.point(engine.world.bodies, mousePosition);
     bodiesUnderMouse.forEach(function(body) {
@@ -173,31 +199,6 @@ function moveInteraction(event) {
     });
   }
 }
-
-// Add event listeners for touch and mouse interactions
-document.addEventListener('mousedown', startInteraction);
-document.addEventListener('mouseup', endInteraction);
-document.addEventListener('mousemove', moveInteraction);
-document.addEventListener('touchstart', startInteraction);
-document.addEventListener('touchend', endInteraction);
-document.addEventListener('touchmove', moveInteraction);
-
-// Prevent scrolling and zooming on touch devices
-document.body.addEventListener('touchstart', function(e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, { passive: false });
-document.body.addEventListener('touchend', function(e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, { passive: false });
-document.body.addEventListener('touchmove', function(e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, { passive: false });
 
         // Run the engine
         Engine.run(engine);
