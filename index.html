@@ -1,25 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-  
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-      Interactive Canvas with Physics
-    </title>
-    <style>
-      .controls { position: absolute; top: 10px; left: 10px; z-index: 100; /*
-      Ensures controls are above the canvas */ color: white; /* Sets the font
-      color to white */ }  body { margin: 0; overflow: hidden; background-color:
-      #000000; } canvas { border: none; touch-action: none; background-color:
-      transparent; position: absolute; top: 0; left: 0; width: 100%; height:
-      100%; }
-    </style>
-  </head>
-  
-  <body>
-    <div class="controls">
-      <select id="shape">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Canvas with Physics</title>
+  <style>
+    .controls { position: absolute; top: 10px; left: 10px; z-index: 100; color: white; }
+    .background-selector { position: absolute; bottom: 10px; left: 10px; z-index: 100; }
+    body { margin: 0; overflow: hidden; background-color: #000000 }
+    canvas { border: none; touch-action: none; background-color: transparent; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <select id="shape">
         <option value="rectangle">
           Rectangle
         </option>
@@ -49,12 +43,16 @@
       Y Scale:
       <input type="text" id="yScale" value="100">
       <br>
-    </div>
-    <canvas id="canvas"></canvas>
-      <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0">
-      </script>
-      <script>
-        // Matter.js module aliases
+  </div>
+  <div class="background-selector">
+    <input type="file" id="backgroundInput" style="display: none;" onchange="changeBackground(this)" accept="image/*">
+    <button onclick="document.getElementById('backgroundInput').click()">Select Background</button>
+  </div>
+  <canvas id="canvas"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
+  <script>
+
+    // Matter.js module aliases
         var Engine = Matter.Engine,
         Render = Matter.Render,
         World = Matter.World,
@@ -207,3 +205,48 @@ function handleInteraction(position) {
       </script>
   </body>
 </html>
+
+
+    // Function to change the background image
+    function changeBackground(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          document.body.style.backgroundImage = 'url(' + e.target.result + ')';
+          document.body.style.backgroundSize = 'cover';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      Interactive Canvas with Physics
+    </title>
+    <style>
+      .controls { position: absolute; top: 10px; left: 10px; z-index: 100; /*
+      Ensures controls are above the canvas */ color: white; /* Sets the font
+      color to white */ }  body { margin: 0; overflow: hidden; background-color:
+      #000000; } canvas { border: none; touch-action: none; background-color:
+      transparent; position: absolute; top: 0; left: 0; width: 100%; height:
+      100%; }
+    </style>
+  </head>
+  
+  <body>
+    <div class="controls">
+      
+    </div>
+    <canvas id="canvas"></canvas>
+      <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0">
+      </script>
+      <script>
+        
