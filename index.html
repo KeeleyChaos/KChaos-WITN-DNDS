@@ -57,8 +57,8 @@ Y Coordinate: <input type="text" id="yCoord">
 
   function startDrag(e) {
     var rect = canvas.getBoundingClientRect();
-    var x = e.clientX - rect.left;
-    var y = e.clientY - rect.top;
+    var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
+    var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
     shapes.forEach(function(shape) {
       if (ctx.isPointInPath(shape.path, x, y)) {
         selectedShape = shape;
@@ -69,8 +69,8 @@ Y Coordinate: <input type="text" id="yCoord">
   function drag(e) {
     if (selectedShape) {
       var rect = canvas.getBoundingClientRect();
-      var x = e.clientX - rect.left;
-      var y = e.clientY - rect.top;
+      var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
+      var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
       selectedShape.x = x;
       selectedShape.y = y;
       drawShapes();
@@ -82,26 +82,25 @@ Y Coordinate: <input type="text" id="yCoord">
   }
 
   function createShape() {
-  var shapeType = document.getElementById('shape').value;
-  var x = parseInt(document.getElementById('xCoord').value, 10); // Parse as integer for pixels
-  var y = parseInt(document.getElementById('yCoord').value, 10); // Parse as integer for pixels
-  var xScale = parseFloat(document.getElementById('xScale').value);
-  var yScale = parseFloat(document.getElementById('yScale').value);
-  var path = new Path2D();
-  if (shapeType === 'rectangle') {
-    path.rect(x, y, 100 * xScale, 50 * yScale);
-  } else if (shapeType === 'triangle') {
-    path.moveTo(x, y);
-    path.lineTo(x + 50 * xScale, y + 100 * yScale);
-    path.lineTo(x - 50 * xScale, y + 100 * yScale);
-    path.closePath();
-  } else if (shapeType === 'oval') {
-    path.ellipse(x, y, 50 * xScale, 25 * yScale, 0, 0, 2 * Math.PI);
+    var shapeType = document.getElementById('shape').value;
+    var x = parseInt(document.getElementById('xCoord').value, 10); // Parse as integer for pixels
+    var y = parseInt(document.getElementById('yCoord').value, 10); // Parse as integer for pixels
+    var xScale = parseFloat(document.getElementById('xScale').value);
+    var yScale = parseFloat(document.getElementById('yScale').value);
+    var path = new Path2D();
+    if (shapeType === 'rectangle') {
+      path.rect(x, y, 100 * xScale, 50 * yScale);
+    } else if (shapeType === 'triangle') {
+      path.moveTo(x, y);
+      path.lineTo(x + 50 * xScale, y + 100 * yScale);
+      path.lineTo(x - 50 * xScale, y + 100 * yScale);
+      path.closePath();
+    } else if (shapeType === 'oval') {
+      path.ellipse(x, y, 50 * xScale, 25 * yScale, 0, 0, 2 * Math.PI);
+    }
+    shapes.push({type: shapeType, x: x, y: y, path: path});
+    drawShapes();
   }
-  shapes.push({type: shapeType, x: x, y: y, path: path});
-  drawShapes();
-}
-
 
   function drawShapes() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
