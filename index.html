@@ -194,31 +194,37 @@ function handleInteraction(position) {
   }
 }
 
-        // Run the engine
-        Engine.run(engine);
+// Assuming you have already created an engine
+var engine = Matter.Engine.create();
+var render = Matter.Render.create({
+  element: document.body,
+  engine: engine,
+  options: {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    background: 'transparent', // Set the background to transparent
+    wireframes: false
+  }
+});
 
-        // Run the renderer
-        Render.run(render);
-
-// Function to change the background image of the canvas
+// Function to change the background image of the Matter.js canvas
 function changeBackground(input) {
   if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function(e) {
-      var canvas = document.getElementById('canvas');
-      var ctx = canvas.getContext('2d');
-      var img = new Image();
-      img.onload = function() {
-        // Clear the canvas before drawing the new background
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Draw the image onto the canvas, covering the entire area
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
-      img.src = e.target.result;
+      // Set the background image style for the canvas element
+      render.canvas.style.backgroundImage = 'url(' + e.target.result + ')';
+      render.canvas.style.backgroundSize = 'cover';
     };
     reader.readAsDataURL(input.files[0]);
   }
 }
+
+// Run the engine
+Matter.Engine.run(engine);
+// Run the renderer
+Matter.Render.run(render);
+
 
   </script>
 </body>
