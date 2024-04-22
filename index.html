@@ -60,13 +60,31 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
     var yScale = parseInt(document.getElementById('yScale').value, 10);
     var body;
     if (shapeType === 'rectangle') {
-      body = Bodies.rectangle(x, y, xScale, yScale);
+      body = Bodies.rectangle(x, y, xScale, yScale, {
+        render: {
+          fillStyle: 'white',
+          strokeStyle: 'black',
+          lineWidth: 2
+        }
+      });
     } else if (shapeType === 'triangle') {
-      // Create a triangle body by using a trapezoid with very small top width
-      body = Bodies.trapezoid(x, y, xScale, yScale, 0.0001);
+      // Create a triangle body by using a polygon with 3 vertices
+      body = Bodies.polygon(x, y, 3, xScale / 2, {
+        render: {
+          fillStyle: 'white',
+          strokeStyle: 'black',
+          lineWidth: 2
+        }
+      });
     } else if (shapeType === 'oval') {
       // Create an oval body by using a circle and scaling it
-      body = Bodies.circle(x, y, xScale / 2);
+      body = Bodies.circle(x, y, xScale / 2, {
+        render: {
+          fillStyle: 'white',
+          strokeStyle: 'black',
+          lineWidth: 2
+        }
+      });
       Matter.Body.scale(body, 1, yScale / xScale);
     }
     World.add(engine.world, body);
