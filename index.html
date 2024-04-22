@@ -30,12 +30,12 @@
           Oval
         </option>
       </select>
-      <button onclick="createShape()">
-        Create Object
-      </button>
+     <button onclick="createShape(document.getElementById('shape').value, parseFloat(document.getElementById('xCoord').value), parseFloat(document.getElementById('yCoord').value), parseFloat(document.getElementById('xScale').value), parseFloat(document.getElementById('yScale').value))">
+  Create Object
+</button>
       <button onclick="toggleEraseMode()">
-        Erase
-      </button>
+  Erase
+</button>
       <br>
       X Coordinate:
       <input type="text" id="xCoord" value="400">
@@ -100,7 +100,6 @@
                 fillStyle: 'white',
                 strokeStyle: 'black',
                 lineWidth: 2
-                visible: true // Set this to true
               }
             });
           } else if (shapeType === 'triangle') {
@@ -110,7 +109,6 @@
                 fillStyle: 'white',
                 strokeStyle: 'black',
                 lineWidth: 2
-                visible: true // Set this to true
               }
             });
           } else if (shapeType === 'oval') {
@@ -120,7 +118,6 @@
                 fillStyle: 'white',
                 strokeStyle: 'black',
                 lineWidth: 2
-                visible: true // Set this to true
               }
             });
             Matter.Body.scale(body, 1, yScale / xScale);
