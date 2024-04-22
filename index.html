@@ -26,7 +26,7 @@
 </head>
 <body>
 
-<canvas id="canvas" width="800" height="600"></canvas><br>
+<canvas id="canvas"></canvas><br>
 <select id="shape">
   <option value="rectangle">Rectangle</option>
   <option value="triangle">Triangle</option>
@@ -82,7 +82,6 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
         }
       });
     } else if (shapeType === 'triangle') {
-      // Create a triangle body by using a polygon with 3 vertices
       body = Bodies.polygon(x, y, 3, xScale / 2, {
         render: {
           fillStyle: 'white',
@@ -91,7 +90,6 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
         }
       });
     } else if (shapeType === 'oval') {
-      // Create an oval body by using a circle and scaling it
       body = Bodies.circle(x, y, xScale / 2, {
         render: {
           fillStyle: 'white',
@@ -120,19 +118,20 @@ Y Coordinate: <input type="text" id="yCoord" value="300"><br>
   World.add(engine.world, mouseConstraint);
 
   // Create walls as static bodies
+  var offset = 10; // Offset for the walls outside the canvas
   var wallOptions = {
     isStatic: true,
     render: {
-      fillStyle: 'gray',
-      strokeStyle: 'black',
-      lineWidth: 2
+      fillStyle: 'transparent', // Make the walls transparent
+      strokeStyle: 'transparent', // Make the wall borders transparent
+      lineWidth: 1
     }
   };
   World.add(engine.world, [
-    Bodies.rectangle(400, 0, 800, 20, wallOptions), // Top wall
-    Bodies.rectangle(400, 600, 800, 20, wallOptions), // Bottom wall
-    Bodies.rectangle(0, 300, 20, 600, wallOptions), // Left wall
-    Bodies.rectangle(800, 300, 20, 600, wallOptions) // Right wall
+    Bodies.rectangle(400, -offset, 820, 20, wallOptions), // Top wall
+    Bodies.rectangle(400, 600 + offset, 820, 20, wallOptions), // Bottom wall
+    Bodies.rectangle(-offset, 300, 20, 620, wallOptions), // Left wall
+    Bodies.rectangle(800 + offset, 300, 20, 620, wallOptions) // Right wall
   ]);
 
   // Toggle erase mode
