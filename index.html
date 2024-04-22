@@ -178,7 +178,7 @@ document.addEventListener('touchstart', function(event) {
 // Event listener for touch end
 document.addEventListener('touchend', function(event) {
   mouseButtonIsDown = false;
-}, { passive: false });
+});
 
 // Event listener for touch move
 document.addEventListener('touchmove', function(event) {
@@ -190,9 +190,9 @@ document.addEventListener('touchmove', function(event) {
 // Function to handle interaction (mouse or touch)
 function handleInteraction(position) {
   if (eraseMode && mouseButtonIsDown) {
-    var mousePosition = { x: position.clientX, y: position.clientY };
-    var bodiesUnderMouse = Matter.Query.point(engine.world.bodies, mousePosition);
-    bodiesUnderMouse.forEach(function(body) {
+    var interactionPosition = { x: position.clientX, y: position.clientY };
+    var bodiesUnderInteraction = Matter.Query.point(engine.world.bodies, interactionPosition);
+    bodiesUnderInteraction.forEach(function(body) {
       if (body.label !== 'wall') {
         Matter.Composite.remove(engine.world, body);
       }
@@ -207,5 +207,4 @@ function handleInteraction(position) {
         Render.run(render);
       </script>
   </body>
-
 </html>
