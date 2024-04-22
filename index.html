@@ -139,16 +139,40 @@
 
         World.add(engine.world, mouseConstraint);
 
-        // Toggle erase mode
-        var eraseMode = false;
-        function toggleEraseMode() {
-          eraseMode = !eraseMode;
-          if (eraseMode) {
-            document.body.style.cursor = 'crosshair';
-          } else {
-            document.body.style.cursor = 'default';
-          }
-        }
+        // Initialize erase mode
+var eraseMode = false;
+
+// Function to toggle erase mode
+function toggleEraseMode() {
+  eraseMode = !eraseMode;
+  if (eraseMode) {
+    document.body.style.cursor = 'crosshair';
+  } else {
+    document.body.style.cursor = 'default';
+  }
+}
+
+// Disable mouse interaction with bodies in erase mode
+function setBodyInteraction(body, enableInteraction) {
+  body.isStatic = !enableInteraction;
+}
+
+// Listen for mouse clicks or drag clicks
+document.addEventListener('mousedown', function (event) {
+  if (eraseMode) {
+    const mousePosition = { x: event.clientX, y: event.clientY };
+    const clickedBody = Matter.Query.point(engine.world.bodies, mousePosition)[0];
+    if (clickedBody) {
+      // Remove the body from the world
+      World.remove(engine.world, clickedBody);
+    }
+  }
+});
+
+// Example usage:
+// Call setBodyInteraction(body, false) to disable interaction with a body
+// Call setBodyInteraction(body, true) to enable interaction with a body
+
 
         // Run the engine
         Engine.run(engine);
