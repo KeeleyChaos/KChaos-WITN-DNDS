@@ -115,59 +115,90 @@ function changeBackground(input) {
         Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions) // right
         ]);
 
-            // Function to convert HSL to RGB
-    function hslToRgb(h, s, l) {
-      let r, g, b;
-      if (s === 0) {
-        r = g = b = l; // achromatic
-      } else {
-        const hue2rgb = (p, q, t) => {
-          if (t < 0) t += 1;
-          if (t > 1) t -= 1;
-          if (t < 1 / 6) return p + (q - p) * 6 * t;
-          if (t < 1 / 2) return q;
-          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-          return p;
-        };
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-      }
-      return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-    }
+// Function to update the color of all existing bodies
+function updateBodyColors(newColor) {
+  // Iterate over all bodies in the world
+  Matter.Composite.allBodies(engine.world).forEach(function(body) {
+    // Update the fillStyle of the body's render property
+    body.render.fillStyle = newColor;
+  });
+}
 
-    // Initialize the bodyColor variable with an initial color
-    let bodyColor = 'white';
+// Modify the event listener for the color wheel to update all bodies
+colorWheel.addEventListener('click', (event) => {
+  // Initialize the bodyColor variable with an initial color
+        let bodyColor = 'white';
 
-    // Get the color wheel element
-    const colorWheel = document.getElementById('colorWheel');
-    const toggleButton = document.getElementById('toggleColorWheel');
+        // Get the color wheel element
+        const colorWheel = document.getElementById('colorWheel');
+        const toggleButton = document.getElementById('toggleColorWheel');
 
-    // Add a click event listener to the color wheel
-    colorWheel.addEventListener('click', (event) => {
-      // Get the clicked color based on the cursor position
-      const rect = colorWheel.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const angle = Math.atan2(y - rect.height / 2, x - rect.width / 2);
-      const hue = (angle + Math.PI) / (2 * Math.PI);
+        // Adjusted click event listener for the color wheel
+colorWheel.addEventListener('click', (event) => {
+  // Get the clicked position based on the cursor position
+  const rect = colorWheel.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
 
-      // Convert hue to an RGB color
-      const rgbColor = hslToRgb(hue, 1, 0.5);
+  // Calculate the angle relative to the center of the color wheel
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const angle = Math.atan2(dy, dx);
 
-      // Update the body background color
-      bodyColor = `rgb(${rgbColor[0]}, ${rgbColor[1]}, ${rgbColor[2]})`;
-    });
+  // Ensure the angle is within the range [0, 2 * Math.PI]
+  const normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
 
-    // Add a click event listener to the toggle button
-    toggleButton.addEventListener('click', () => {
-      colorWheel.style.display = colorWheel.style.display === 'none' ? 'block' : 'none';
-    });
+  // Convert the normalized angle to a hue value
+  const hue = normalizedAngle / (2 * Math.PI);
 
-   
-        // Function to create shapes
+  // Convert hue to an RGB color
+  const rgbColor = hslToRgb(hue, 1, 0.5);
+
+  // Update the body background color
+  bodyColor = `rgb(${rgbColor[0]}, ${rgbColor[1]}, ${rgbColor[2]})`;
+
+  // Update the color of all bodies
+  updateBodyColors(bodyColor);
+});
+
+
+        // Add a click event listener to the toggle button
+        toggleButton.addEventListener('click', () => {
+            colorWheel.style.display = colorWheel.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Function to convert HSL to RGB
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+  // Call the updateBodyColors function with the new color
+  updateBodyColors(bodyColor);
+});
+
+// Call updateBodyColors when creating a new shape
+function createShape(shapeType, x, y, xScale, yScale) {
+  // Function to create shapes
         function createShape(shapeType, x, y, xScale, yScale) {
           var body;
           if (shapeType === 'rectangle') {
@@ -200,6 +231,10 @@ function changeBackground(input) {
           }
           World.add(engine.world, body);
         }
+
+  // Update the color of all bodies after creating a new shape
+  updateBodyColors(bodyColor);
+}
 
         // Add mouse control
         var mouse = Mouse.create(render.canvas),
