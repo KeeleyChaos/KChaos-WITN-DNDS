@@ -142,33 +142,31 @@
         // Initialize erase mode
 var eraseMode = false;
 
-// Create the eraser (small circular body)
-var eraser = Bodies.circle(-100, -100, 10, {
-  isStatic: true, // The eraser won't move on its own
-  render: {
-    fillStyle: 'red', // Customize the eraser color
-    strokeStyle: 'black',
-    lineWidth: 2
-  }
-});
-World.add(engine.world, eraser);
-
-// Listen for mouse movement
-document.addEventListener('mousemove', function (event) {
+// Function to toggle erase mode
+function toggleEraseMode() {
+  eraseMode = !eraseMode;
   if (eraseMode) {
-    const mousePosition = { x: event.clientX, y: event.clientY };
-    Body.setPosition(eraser, mousePosition); // Move the eraser to follow the mouse
+    document.body.style.cursor = 'crosshair';
+    // Disable the mouse constraint to prevent dragging bodies
+    mouseConstraint.constraint.stiffness = 0;
+  } else {
+    document.body.style.cursor = 'default';
+    // Re-enable the mouse constraint to allow dragging bodies
+    mouseConstraint.constraint.stiffness = 0.2;
   }
-});
+}
 
-// Listen for mouse clicks
-document.addEventListener('mousedown', function (event) {
+// Update the mouse move event to check for collisions with bodies
+document.addEventListener('mousemove', function(event) {
   if (eraseMode) {
-    const mousePosition = { x: event.clientX, y: event.clientY };
-    const collidedBodies = Matter.Query.point(engine.world.bodies, mousePosition);
-    collidedBodies.forEach(body => {
-      if (body !== eraser) {
-        World.remove(engine.world, body); // Remove the body from the world
+    // Get mouse position
+    var mousePosition = { x: event.clientX, y: event.clientY };
+    // Query for bodies at the mouse position
+    var bodiesUnderMouse = Matter.Query.point(engine.world.bodies, mousePosition);
+    bodiesUnderMouse.forEach(function(body) {
+      if (body !== mouseConstraint.body) {
+        // Remove the body if it's not the ground or walls
+        Matter.Composite.remove(engine.world, body);
       }
     });
   }
