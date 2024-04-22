@@ -13,27 +13,23 @@
 </head>
 <body>
 
-<canvas id="canvas" width="800" height="600"></canvas>
+<canvas id="canvas" width="500" height="500"></canvas><br>
 <select id="shape">
   <option value="rectangle">Rectangle</option>
   <option value="triangle">Triangle</option>
   <option value="oval">Oval</option>
-</select>
-<button onclick="createShape()">Create Object</button>
-<br>
-X Scale: <input type="text" id="xScale" value="1">
-Y Scale: <input type="text" id="yScale" value="1">
-<br>
-X Coordinate: <input type="text" id="xCoord" value="0">
-Y Coordinate: <input type="text" id="yCoord" value="0">
-<br>
+</select><br>
+<button onclick="createShape()">Create Object</button><br>
+X Scale: <input type="text" id="xScale" value="1"><br>
+Y Scale: <input type="text" id="yScale" value="1"><br>
+X Coordinate: <input type="text" id="xCoord" value="0"><br>
+Y Coordinate: <input type="text" id="yCoord" value="0"><br>
 
 <script>
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
   var shapes = [];
   var selectedShape = null;
-  var dragStart = null;
 
   function setEventListeners() {
     canvas.addEventListener('mousedown', startDrag);
@@ -60,7 +56,6 @@ Y Coordinate: <input type="text" id="yCoord" value="0">
     var rect = canvas.getBoundingClientRect();
     var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
     var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-    dragStart = { x: x, y: y };
     shapes.forEach(function(shape) {
       if (ctx.isPointInPath(shape.path, x, y)) {
         selectedShape = shape;
@@ -69,7 +64,7 @@ Y Coordinate: <input type="text" id="yCoord" value="0">
   }
 
   function drag(e) {
-    if (selectedShape && dragStart) {
+    if (selectedShape) {
       var rect = canvas.getBoundingClientRect();
       var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
       var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
@@ -89,18 +84,18 @@ Y Coordinate: <input type="text" id="yCoord" value="0">
     var shapeType = document.getElementById('shape').value;
     var x = parseInt(document.getElementById('xCoord').value, 10); // Parse as integer for pixels
     var y = parseInt(document.getElementById('yCoord').value, 10); // Parse as integer for pixels
-    var width = 100; // Width in pixels
-    var height = 50; // Height in pixels
+    var xScale = parseInt(document.getElementById('xScale').value, 10); // Parse as integer for pixels
+    var yScale = parseInt(document.getElementById('yScale').value, 10); // Parse as integer for pixels
     var path = new Path2D();
     if (shapeType === 'rectangle') {
-      path.rect(x, y, width, height);
+      path.rect(x, y, xScale, yScale); // Use scale as size in pixels
     } else if (shapeType === 'triangle') {
       path.moveTo(x, y);
-      path.lineTo(x + width / 2, y + height);
-      path.lineTo(x - width / 2, y + height);
+      path.lineTo(x + xScale / 2, y + yScale);
+      path.lineTo(x - xScale / 2, y + yScale);
       path.closePath();
     } else if (shapeType === 'oval') {
-      path.ellipse(x, y, width / 2, height / 2, 0, 0, 2 * Math.PI);
+      path.ellipse(x, y, xScale / 2, yScale / 2, 0, 0, 2 * Math.PI);
     }
     shapes.push({type: shapeType, x: x, y: y, path: path});
     drawShapes();
