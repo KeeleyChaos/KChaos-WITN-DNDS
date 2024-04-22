@@ -6,7 +6,7 @@
   <title>Interactive Canvas with Physics</title>
   <style>
     .controls { position: absolute; top: 10px; left: 10px; z-index: 100; color: white; }
-    body { margin: 0; overflow: hidden; background-color: transparent; }
+    body { margin: 0; overflow: hidden; background-color: #000000; }
     canvas { border: none; touch-action: none; background-color: transparent; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   </style>
 </head>
@@ -65,7 +65,7 @@ var render = Matter.Render.create({
   options: {
     width: window.innerWidth,
     height: window.innerHeight,
-    background: 'black', // Set the background to transparent
+    background: 'transparent-', // Set the background to transparent
     wireframes: false
   }
 });
