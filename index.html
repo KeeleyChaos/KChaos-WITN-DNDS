@@ -204,17 +204,26 @@ function handleInteraction(position) {
         // Run the renderer
         Render.run(render);
 
-    // Function to change the background image
-    function changeBackground(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          document.body.style.backgroundImage = 'url(' + e.target.result + ')';
-          document.body.style.backgroundSize = 'cover';
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
+    // Function to change the background image of the canvas
+function changeBackground(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var canvas = document.getElementById('canvas');
+      var ctx = canvas.getContext('2d');
+      var img = new Image();
+      img.onload = function() {
+        // Clear the canvas before drawing the new background
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw the image onto the canvas, covering the entire area
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
   </script>
 </body>
 </html>
