@@ -170,7 +170,7 @@ document.addEventListener('mousemove', handleInteraction);
 // Event listener for touch start
 document.addEventListener('touchstart', function(event) {
   // Prevent default touch behavior (e.g., scrolling)
-  event.preventDefault();
+  //event.preventDefault();
   mouseButtonIsDown = true;
   handleInteraction(event.touches[0]);
 }, { passive: false });
