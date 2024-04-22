@@ -33,6 +33,7 @@ Y Coordinate: <input type="text" id="yCoord" value="0">
   var ctx = canvas.getContext('2d');
   var shapes = [];
   var selectedShape = null;
+  var dragStart = null;
 
   function setEventListeners() {
     canvas.addEventListener('mousedown', startDrag);
@@ -59,6 +60,7 @@ Y Coordinate: <input type="text" id="yCoord" value="0">
     var rect = canvas.getBoundingClientRect();
     var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
     var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
+    dragStart = { x: x, y: y };
     shapes.forEach(function(shape) {
       if (ctx.isPointInPath(shape.path, x, y)) {
         selectedShape = shape;
@@ -67,36 +69,38 @@ Y Coordinate: <input type="text" id="yCoord" value="0">
   }
 
   function drag(e) {
-    if (selectedShape) {
+    if (selectedShape && dragStart) {
       var rect = canvas.getBoundingClientRect();
       var x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
       var y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-      selectedShape.x = x;
-      selectedShape.y = y;
+      selectedShape.x += x - dragStart.x;
+      selectedShape.y += y - dragStart.y;
+      dragStart = { x: x, y: y };
       drawShapes();
     }
   }
 
   function endDrag(e) {
     selectedShape = null;
+    dragStart = null;
   }
 
   function createShape() {
     var shapeType = document.getElementById('shape').value;
     var x = parseInt(document.getElementById('xCoord').value, 10); // Parse as integer for pixels
     var y = parseInt(document.getElementById('yCoord').value, 10); // Parse as integer for pixels
-    var xScale = parseFloat(document.getElementById('xScale').value);
-    var yScale = parseFloat(document.getElementById('yScale').value);
+    var width = 100; // Width in pixels
+    var height = 50; // Height in pixels
     var path = new Path2D();
     if (shapeType === 'rectangle') {
-      path.rect(x, y, 100 * xScale, 50 * yScale);
+      path.rect(x, y, width, height);
     } else if (shapeType === 'triangle') {
       path.moveTo(x, y);
-      path.lineTo(x + 50 * xScale, y + 100 * yScale);
-      path.lineTo(x - 50 * xScale, y + 100 * yScale);
+      path.lineTo(x + width / 2, y + height);
+      path.lineTo(x - width / 2, y + height);
       path.closePath();
     } else if (shapeType === 'oval') {
-      path.ellipse(x, y, 50 * xScale, 25 * yScale, 0, 0, 2 * Math.PI);
+      path.ellipse(x, y, width / 2, height / 2, 0, 0, 2 * Math.PI);
     }
     shapes.push({type: shapeType, x: x, y: y, path: path});
     drawShapes();
