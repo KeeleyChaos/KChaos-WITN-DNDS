@@ -24,7 +24,16 @@
 </head>
 <body>
 
-<canvas id="canvas"></canvas>
+<canvas id="canvas"></canvas><br> <select id="shape">
+<option value="rectangle">Rectangle</option>
+  <option value="triangle">Triangle</option>
+  <option value="oval">Oval</option> </select>
+  <button onclick="createShape()">Create Object</button> 
+  <button onclick="toggleEraseMode()">Erase</button><br>
+  X Scale: <input type="text" id="xScale" value="100"><br>
+  Y Scale: <input type="text" id="yScale" value="100"><br>
+  X Coordinate: <input type="text" id="xCoord" value="400"><br>
+  Y Coordinate: <input type="text" id="yCoord" value="300"><br>
 
 <script src="https://cdn.jsdelivr.net/npm/matter-js@0.16.0"></script>
 <script>
