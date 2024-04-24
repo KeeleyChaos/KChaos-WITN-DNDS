@@ -253,7 +253,10 @@ function createShape(shapeType, x, y, xScale, yScale) {
         });
 
         World.add(engine.world, mouseConstraint);
-        
+
+// Define eraseMode in the global scope or within a relevant scope
+var eraseMode = false; // Default value, can be set to true if eraser should be active
+   
 // Function to handle erasing objects on interaction
 function eraseAtPosition(position) {
   var interactionPosition = { x: position.clientX, y: position.clientY };
