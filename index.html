@@ -115,6 +115,9 @@ function changeBackground(input) {
         Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight, wallOptions) // right
         ]);
 
+// Define bodyColor in the global scope
+var bodyColor = '#FFFFFF'; // Default color, can be changed as needed
+   
 // Function to update the color of all existing bodies
 function updateBodyColors(newColor) {
   // Iterate over all bodies in the world
@@ -250,66 +253,42 @@ function createShape(shapeType, x, y, xScale, yScale) {
 
         World.add(engine.world, mouseConstraint);
         
-// Initialize erase mode and mouse button state
-var eraseMode = false;
-var mouseButtonIsDown = false;
-
-// Function to toggle erase mode
-function toggleEraseMode() {
-  eraseMode = !eraseMode;
-  document.body.style.cursor = eraseMode ? 'crosshair' : 'default';
+// Function to handle erasing objects on interaction
+function eraseAtPosition(position) {
+  var interactionPosition = { x: position.clientX, y: position.clientY };
+  var bodiesUnderInteraction = Matter.Query.point(engine.world.bodies, interactionPosition);
+  bodiesUnderInteraction.forEach(function(body) {
+    if (body.label !== 'wall') {
+      Matter.Composite.remove(engine.world, body);
+    }
+  });
 }
 
-// Event listener for mouse button down
-document.addEventListener('mousedown', function(event) {
-  // Check if the left mouse button is pressed
-  if (event.button === 0) {
-    mouseButtonIsDown = true;
+// Event listener for mouse click
+document.addEventListener('click', function(event) {
+  if (eraseMode) {
+    eraseAtPosition(event);
   }
 });
 
-// Event listener for mouse button up
-document.addEventListener('mouseup', function(event) {
-  // Check if the left mouse button is released
-  if (event.button === 0) {
-    mouseButtonIsDown = false;
-  }
-});
-
-// Event listener for mouse move
-document.addEventListener('mousemove', handleInteraction);
-
-// Event listener for touch start
-document.addEventListener('touchstart', function(event) {
-  
-  mouseButtonIsDown = true;
-  handleInteraction(event.touches[0]);
-}, { passive: false });
-
-// Event listener for touch end
-document.addEventListener('touchend', function(event) {
-  mouseButtonIsDown = false;
-});
-
-// Event listener for touch move
+// Event listener for touch (taps and swipes)
 document.addEventListener('touchmove', function(event) {
+  if (eraseMode) {
+    // Iterate over all touch points
+    for (var i = 0; i < event.touches.length; i++) {
+      eraseAtPosition(event.touches[i]);
+    }
+  }
   // Prevent default touch behavior (e.g., scrolling)
   event.preventDefault();
-  handleInteraction(event.touches[0]);
 }, { passive: false });
 
-// Function to handle interaction (mouse or touch)
-function handleInteraction(position) {
+// Event listener for mouse drag (click and move)
+document.addEventListener('mousemove', function(event) {
   if (eraseMode && mouseButtonIsDown) {
-    var interactionPosition = { x: position.clientX, y: position.clientY };
-    var bodiesUnderInteraction = Matter.Query.point(engine.world.bodies, interactionPosition);
-    bodiesUnderInteraction.forEach(function(body) {
-      if (body.label !== 'wall') {
-        Matter.Composite.remove(engine.world, body);
-      }
-    });
+    eraseAtPosition(event);
   }
-}
+});
 
 // Run the engine
 Matter.Engine.run(engine);
