@@ -254,54 +254,28 @@ function createShape(shapeType, x, y, xScale, yScale) {
 
         World.add(engine.world, mouseConstraint);
 
-// Define a global variable to track the erase mode state
-var eraseMode = false; // Initially set to false
+// Initialize erase mode and mouse button state
+var eraseMode = false;
+var mouseButtonIsDown = false;
 
 // Function to toggle erase mode
 function toggleEraseMode() {
-  eraseMode = !eraseMode; // Toggle the value (true to false, or false to true)
-  // You can add additional logic here if needed
-}
-   
-// Define eraseMode in the global scope or within a relevant scope
-var eraseMode = false; // Default value, can be set to true if eraser should be active
-   
-// Function to handle erasing objects on interaction
-function eraseAtPosition(position) {
-  var interactionPosition = { x: position.clientX, y: position.clientY };
-  var bodiesUnderInteraction = Matter.Query.point(engine.world.bodies, interactionPosition);
-  bodiesUnderInteraction.forEach(function(body) {
-    if (body.label !== 'wall') {
-      Matter.Composite.remove(engine.world, body);
-    }
-  });
+  eraseMode = !eraseMode;
+  document.body.style.cursor = eraseMode ? 'crosshair' : 'default';
 }
 
-// Event listener for mouse click
-document.addEventListener('click', function(event) {
-  if (eraseMode) {
-    eraseAtPosition(event);
+// Event listener for mouse button down
+document.addEventListener('mousedown', function(event) {
+  // Check if the left mouse button is pressed
+  if (event.button === 0) {
+    mouseButtonIsDown = true;
+    // Call handleInteraction in case of a click without movement
+    handleInteraction(event);
   }
 });
 
-// Event listener for touch (taps and swipes)
-document.addEventListener('touchmove', function(event) {
-  if (eraseMode) {
-    // Iterate over all touch points
-    for (var i = 0; i < event.touches.length; i++) {
-      eraseAtPosition(event.touches[i]);
-    }
-  }
-  // Prevent default touch behavior (e.g., scrolling)
-  event.preventDefault();
-}, { passive: false });
-
-// Event listener for mouse drag (click and move)
-document.addEventListener('mousemove', function(event) {
-  if (eraseMode && mouseButtonIsDown) {
-    eraseAtPosition(event);
-  }
-});
+// Event listener for mouse button up
+document.addEventListener('mouseup', function(event)
 
 // Run the engine
 Matter.Engine.run(engine);
