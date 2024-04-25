@@ -200,41 +200,38 @@ colorWheel.addEventListener('click', (event) => {
   updateBodyColors(bodyColor);
 });
 
-// Call updateBodyColors when creating a new shape
+// Function to create shapes
 function createShape(shapeType, x, y, xScale, yScale) {
-  // Function to create shapes
-        function createShape(shapeType, x, y, xScale, yScale) {
-          var body;
-          if (shapeType === 'rectangle') {
-            body = Bodies.rectangle(x, y, xScale, yScale, {
-              render: {
-                fillStyle: bodyColor,
-                strokeStyle: 'black',
-                lineWidth: 2
-              }
-            });
-          } else if (shapeType === 'triangle') {
-            // Create a triangle body by using a polygon with 3 vertices
-            body = Bodies.polygon(x, y, 3, xScale / 2, {
-              render: {
-                fillStyle: bodyColor,
-                strokeStyle: 'black',
-                lineWidth: 2
-              }
-            });
-          } else if (shapeType === 'oval') {
-            // Create an oval body by using a circle and scaling it
-            body = Bodies.circle(x, y, xScale / 2, {
-              render: {
-                fillStyle: bodyColor,
-                strokeStyle: 'black',
-                lineWidth: 2
-              }
-            });
-            Matter.Body.scale(body, 1, yScale / xScale);
-          }
-          World.add(engine.world, body);
-        }
+  var body;
+  if (shapeType === 'rectangle') {
+    body = Matter.Bodies.rectangle(x, y, xScale, yScale, {
+      render: {
+        fillStyle: bodyColor,
+        strokeStyle: 'black',
+        lineWidth: 2
+      }
+    });
+  } else if (shapeType === 'triangle') {
+    // Create a triangle body by using a polygon with 3 vertices
+    body = Matter.Bodies.polygon(x, y, 3, xScale / 2, {
+      render: {
+        fillStyle: bodyColor,
+        strokeStyle: 'black',
+        lineWidth: 2
+      }
+    });
+  } else if (shapeType === 'oval') {
+    // Create an oval body by using a circle and scaling it
+    body = Matter.Bodies.circle(x, y, xScale / 2, {
+      render: {
+        fillStyle: bodyColor,
+        strokeStyle: 'black',
+        lineWidth: 2
+      }
+    });
+    Matter.Body.scale(body, 1, yScale / xScale);
+  }
+  Matter.World.add(engine.world, body);
 
   // Update the color of all bodies after creating a new shape
   updateBodyColors(bodyColor);
